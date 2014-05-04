@@ -35,7 +35,6 @@ class TicTacToe {
 		## AI first selection	
 		## if player doesn't take the center square AI takes it
 		## if player does take center square AI takes top left corner slot #1
-		## TODO: AI should take random corner slot
 		if($playerCount <= 1) {
 			if($playerSelection != 5) {
 				$_SESSION['ai'][5] = 5;
@@ -48,23 +47,28 @@ class TicTacToe {
 			}
 			return $aiSelection;
 		} else {
-			
-			## TODO: skip if AI second move
 			## All moves after first move	
+			##TODO: aiSelectioin --> can i win
 			$aiSelection = $this->checkForWin();
 			if($aiSelection > 0) {
 				$_SESSION['isWinner'] = 1;
 				return $aiSelection;
 			}
-		    
-			## TODO: build Perform Defensive Move method
+			
+			## Perform Defensive Move
 			$aiSelection = $this->defensiveMove();
 			if($aiSelection > 0) {
 				echo "ai performing defensive move<br/>";
 				return $aiSelection;
 			}
 			
-			## TODO: Currently Picks Random Position - Add offensive moves
+			## Test for forks 
+			$aiSelection = $this->checkForForks();
+			if($aiSelection > 0) {
+				return $aiSelection;
+			}
+			
+			## TODO: Pick Random Position
 			$aiSelection = array_rand($freeSlots,1);
 			echo "had to make a random selection<br/>";
 			$_SESSION['ai'][$aiSelection] = $aiSelection;
@@ -73,12 +77,73 @@ class TicTacToe {
 			
 		}	
 	}
+
+	public function checkForForks() {
+		$playerSlots = $_SESSION['player'];
+		$aiSlots     = $_SESSION['ai'];
+		$freeSlots   = $_SESSION['free'];	
+		$winningValues = $_SESSION['winning-combos'];
+		$aiSelection   = 0;
+		$winningSets   = 0;
+		
+		
+	}
 	
 	
 	public function defensiveMove() {
 	
 		
+		$playerSlots = $_SESSION['player'];
+		$aiSlots     = $_SESSION['ai'];
+		$freeSlots   = $_SESSION['free'];	
+		$winningValues = $_SESSION['winning-combos'];
+		$winningPairs  = array();
+		$aiSelection   = 0;
 		
+		## Loop through player possibilties of having a winning move
+		foreach ($playerSlots as $playerSlot) {
+			foreach ($winningValues as $key => $values) {
+				$foundKey = array_search($playerSlot, $values);
+				if(!empty($foundKey)) {
+					$winningPairs[$key][$foundKey] = $values[$foundKey];
+				}
+			}
+		}
+		
+		foreach ($winningPairs as $key => $values) {
+			$num = count($values);
+			if($num > 1) {
+				$removeCombo = $key;
+				$aiSelections = $winningValues[$key];
+				foreach ($values as $value) {
+					$slotChosen = array_search($value, $winningValues[$key]); 
+					if($slotChosen > 0) {
+						unset($aiSelections[$slotChosen]);
+					}
+				}
+				## at this point there should only be one value in the array
+				foreach($aiSelections as $key => $value) {
+					$aiSelection = $value;
+				}
+				
+				if(in_array($aiSelection, $freeSlots)) {
+					break;
+				} else {
+					unset($aiSelection);
+					continue;
+				}
+			}
+		}
+		
+		## remove the winning combo and ai selection from the board
+		if($aiSelection > 0 ) {
+			//unset($_SESSION['winning-combos'][$removeCombo]);
+			unset($_SESSION['free'][$aiSelection]);
+			$_SESSION['ai'][$aiSelection] = $aiSelection;
+			return $aiSelection;
+		} else {
+			return $aiSelection;
+		}
 	}
 	
 	public function checkForWin() {
