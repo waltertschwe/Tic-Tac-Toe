@@ -37,9 +37,9 @@ class TicTacToe {
 		## if player does take center square AI takes top left corner slot #1
 		if($playerCount <= 1) {
 			if($playerSelection != 1) {
-				$_SESSION['ai'][1] = 1;
-				unset($_SESSION['free'][1]);
-				$aiSelection = 1;
+				$_SESSION['ai'][5] = 5;
+				unset($_SESSION['free'][5]);
+				$aiSelection = 5;
 			} else {
 				$_SESSION['ai'][1] = 1;
 				unset($_SESSION['free'][1]);
@@ -47,8 +47,7 @@ class TicTacToe {
 			}
 			return $aiSelection;
 		} else {
-			## All moves after first move	
-			##TODO: aiSelectioin --> can i win
+			
 			$aiSelection = $this->checkForWin();
 			if($aiSelection > 0) {
 				$_SESSION['isWinner'] = 1;
@@ -62,10 +61,19 @@ class TicTacToe {
 				return $aiSelection;
 			}
 			
-				## Test for forks 
-			$aiSelection = $this->checkForForks( $aiSlots );
+			## Test for winning forks 
+			$aiSelection = $this->checkForForks( $aiSlots, 2 );
 			if($aiSelection > 0) {
-				echo "fork = " . $aiSelection;
+				echo "offensive fork = " . $aiSelection;
+				$_SESSION['ai'][$aiSelection] = $aiSelection;
+				unset($_SESSION['free'][$aiSelection]);
+				return $aiSelection;
+			}
+			
+			## Test for blocking forks
+			$aiSelection = $this->checkForForks( $playerSlots, 1 );
+			if($aiSelection > 0) {
+				echo "defensive fork = " . $aiSelection;
 				$_SESSION['ai'][$aiSelection] = $aiSelection;
 				unset($_SESSION['free'][$aiSelection]);
 				return $aiSelection;
@@ -81,7 +89,7 @@ class TicTacToe {
 		}	
 	}
 
-	public function checkForForks( $selections ) {
+	public function checkForForks( $selections, $player ) {
 		
 		echo "checking for fork...";
 		$freeSlots   = $_SESSION['free'];	
@@ -91,7 +99,7 @@ class TicTacToe {
 		##check 
 		foreach ($freeSlots as $freeSlot) {
 			$selections[$freeSlot] = $freeSlot;
-			$potentialTriples = $this->canIWin($selections);
+			$potentialTriples = $this->evaluateTriples($selections, $player);
 			
 			if($potentialTriples >= 2 ) {
 				$slotChosen = $freeSlot;
@@ -103,11 +111,18 @@ class TicTacToe {
 			
 	}
 	
-	public function canIWin( $selections) {
+	public function evaluateTriples( $selections, $player) {
+			
 		$winningValues = $_SESSION['winning-combos'];
-		$playerSlots   = $_SESSION['player'];
-		$potentialFork = 0;
 		
+		## ai is player 2. compare against opposing player
+		if($player == 1) {
+			$playerSlots   = $_SESSION['ai'];
+		} else {
+			$playerSlots   = $_SESSION['player'];
+		}
+		
+		$potentialFork = 0;
 		foreach ($selections as $selection) {
 			foreach ($winningValues as $key => $values) {
 				$foundKey = array_search($selection, $values);
