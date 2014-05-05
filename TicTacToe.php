@@ -7,12 +7,12 @@ class TicTacToe {
 		
 		//$sid = md5(uniqid(rand(), true));
 		//session_id($sid);
-		session_start();
+		//session_start();
 		
 		$_SESSION['isWinner'] = 0;
 		$_SESSION['isPlayerWinner'] = 0;
-		//$_SESSION['player'] = array();
-		//$_SESSION['ai']	    = array();
+		$_SESSION['player'] = array();
+		$_SESSION['ai']	    = array();
 		$_SESSION['free']   = array(1=>1, 2=> 2, 3=> 3,4 =>4,5=>5,6=>6,7=>7,8=>8,9=>9);
 		$_SESSION['winning-combos'] = array(array( 1=> 1, 2=> 2, 3=> 3), array( 1=> 4, 2=> 5, 3=> 6), array( 1=> 7, 2=> 8, 3=> 9), 
 											array( 1=> 1, 2=> 4, 3=> 7), array( 1=> 2, 2=> 5, 3=> 8), array( 1=> 3, 2=> 6, 3=> 9),
@@ -67,6 +67,8 @@ class TicTacToe {
 		
 			$aiSelection = $this->checkForWin($player);
 			if($aiSelection > 0) {
+				$_SESSION['ai'][$aiSelection] = $aiSelection;
+				unset($_SESSION['free'][$aiSelection]);
 				$_SESSION['isWinner'] = 1;
 				return $aiSelection;
 			}

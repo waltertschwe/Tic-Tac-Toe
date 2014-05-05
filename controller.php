@@ -1,40 +1,35 @@
 <?php
 include('TicTacToe.php');
-$slotSelected = (int)$_POST['slot'];
+$slotSelected = (int)$_GET['slot'];
 
 $ticTacToe = new TicTacToe;
 
-
-
-$sessionId = session_id();
-if(empty($sessionId)) {  
+session_start();  
+if(empty($_SESSION)) {
+	error_log("INITIALIZING SESSION", 0);
 	$ticTacToe->initSession();
-} else {
-	session_start($sessionId);
-}
-
-
+} 
 
 $playerSelection = $ticTacToe->playerSelection($slotSelected);
-$_SESSION['player'][$playerSelection] = $playerSelection;
-unset($_SESSION['free'][$playerSelection]);
+$playerWinner = $_SESSION['isPlayerWinner'];
+if($playerWinner){
+	//exit();
+	//session_destroy();
+}
 $aiSelection = $ticTacToe->aiSelection($slotSelected);
 
 
 $aiWinner = $_SESSION['isWinner'];
-$playerWinner = $_SESSION['playerWinner'];
-
 if($aiWinner) {
-	session_destroy();
+	//echo $aiSelection;
+	//exit();
+	//session_destroy();
 }
-
-if($playerWinner){
-	session_destroy();
-}
-
-
 
 echo $aiSelection;
+
+
+
 
 
 
