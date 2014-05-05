@@ -36,10 +36,10 @@ class TicTacToe {
 		## if player doesn't take the center square AI takes it
 		## if player does take center square AI takes top left corner slot #1
 		if($playerCount <= 1) {
-			if($playerSelection != 5) {
-				$_SESSION['ai'][5] = 5;
-				unset($_SESSION['free'][5]);
-				$aiSelection = 5;
+			if($playerSelection != 1) {
+				$_SESSION['ai'][1] = 1;
+				unset($_SESSION['free'][1]);
+				$aiSelection = 1;
 			} else {
 				$_SESSION['ai'][1] = 1;
 				unset($_SESSION['free'][1]);
@@ -62,9 +62,12 @@ class TicTacToe {
 				return $aiSelection;
 			}
 			
-			## Test for forks 
-			$aiSelection = $this->checkForForks();
+				## Test for forks 
+			$aiSelection = $this->checkForForks( $aiSlots );
 			if($aiSelection > 0) {
+				echo "fork = " . $aiSelection;
+				$_SESSION['ai'][$aiSelection] = $aiSelection;
+				unset($_SESSION['free'][$aiSelection]);
 				return $aiSelection;
 			}
 			
@@ -78,15 +81,61 @@ class TicTacToe {
 		}	
 	}
 
-	public function checkForForks() {
-		$playerSlots = $_SESSION['player'];
-		$aiSlots     = $_SESSION['ai'];
+	public function checkForForks( $selections ) {
+		
+		echo "checking for fork...";
 		$freeSlots   = $_SESSION['free'];	
 		$winningValues = $_SESSION['winning-combos'];
-		$aiSelection   = 0;
-		$winningSets   = 0;
+		$slotChosen = 0;
 		
+		##check 
+		foreach ($freeSlots as $freeSlot) {
+			$selections[$freeSlot] = $freeSlot;
+			$potentialTriples = $this->canIWin($selections);
+			
+			if($potentialTriples >= 2 ) {
+				$slotChosen = $freeSlot;
+				break;
+			}
+		}
 		
+		return $slotChosen;
+			
+	}
+	
+	public function canIWin( $selections) {
+		$winningValues = $_SESSION['winning-combos'];
+		$playerSlots   = $_SESSION['player'];
+		$potentialFork = 0;
+		
+		foreach ($selections as $selection) {
+			foreach ($winningValues as $key => $values) {
+				$foundKey = array_search($selection, $values);
+				if(!empty($foundKey)) {
+					$winningPairs[$key][$foundKey] = $values[$foundKey];
+				}
+			}
+		}
+	
+		foreach ($winningPairs as $key => $values) {
+			$num = count($values);
+			$playerSelected = 0;
+			## we have a possible winning Triple
+			if($num == 3) {
+				foreach($values as $value) {
+					if(in_array($value, $playerSlots)) {
+						$playerSelected = 1;
+					}
+				}
+				
+				if($playerSelected == 0) {
+					$potentialFork++;
+				}
+			}
+		}
+		
+		return $potentialFork;
+			
 	}
 	
 	
