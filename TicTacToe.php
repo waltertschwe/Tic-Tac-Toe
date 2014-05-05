@@ -24,7 +24,7 @@ class TicTacToe {
 		unset($_SESSION['free'][$slot]);
 		$isWinner = $this->checkForWin($player);
 		if($isWinner > 0) {
-			$_SESSION['isPlayerWinner'] = 1;
+		    $_SESSION['isPlayerWinner'] = 1;
 		}
 	
 		return $slot;
@@ -59,8 +59,7 @@ class TicTacToe {
 			
 		} else {
 			$player = 2; 
-			$aiSelection = 7;
-			return $aiSelection;
+		
 			$aiSelection = $this->checkForWin($player);
 			if($aiSelection > 0) {
 				$_SESSION['isWinner'] = 1;
@@ -214,7 +213,6 @@ class TicTacToe {
 		
 		## remove the winning combo and ai selection from the board
 		if($aiSelection > 0 ) {
-			//unset($_SESSION['winning-combos'][$removeCombo]);
 			unset($_SESSION['free'][$aiSelection]);
 			$_SESSION['ai'][$aiSelection] = $aiSelection;
 			return $aiSelection;
@@ -225,13 +223,13 @@ class TicTacToe {
 	
 	public function checkForWin($player) {
 		
-		## check if player won
+		
 		if($player == 1) {
 			$offensiveSlots = $_SESSION['player'];
 			$defensiveSlots = $_SESSION['ai'];
 		} else {
-			$offensiveSlots = $_SESSION['player'];
-			$defensiveSlots = $_SESSION['ai'];
+			$offensiveSlots = $_SESSION['ai'];
+			$defensive      = $_SESSION['player'];
 		}
 		
 		$freeSlots   = $_SESSION['free'];	
@@ -254,7 +252,7 @@ class TicTacToe {
 			
 			if($num > 1) {
 				
-				## can win with one move if the slot is free
+				## ai can win with one move if the slot is free
 				$winningTriple = $winningValues[$key];
 				#loop through the two selections we've already made that are in the winning pair
 				foreach ($values as $value) {
@@ -280,5 +278,4 @@ class TicTacToe {
 		}
 	}
 
-	
 }
