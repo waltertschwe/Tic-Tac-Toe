@@ -4,22 +4,26 @@ class TicTacToe {
 	
 
 	public function initSession() {
+		
+		//$sid = md5(uniqid(rand(), true));
+		//session_id($sid);
 		session_start();
-		$sesId = session_id(); 
+		
 		$_SESSION['isWinner'] = 0;
 		$_SESSION['isPlayerWinner'] = 0;
-		$_SESSION['player'] = array();
-		$_SESSION['ai']	    = array();
+		//$_SESSION['player'] = array();
+		//$_SESSION['ai']	    = array();
 		$_SESSION['free']   = array(1=>1, 2=> 2, 3=> 3,4 =>4,5=>5,6=>6,7=>7,8=>8,9=>9);
 		$_SESSION['winning-combos'] = array(array( 1=> 1, 2=> 2, 3=> 3), array( 1=> 4, 2=> 5, 3=> 6), array( 1=> 7, 2=> 8, 3=> 9), 
 											array( 1=> 1, 2=> 4, 3=> 7), array( 1=> 2, 2=> 5, 3=> 8), array( 1=> 3, 2=> 6, 3=> 9),
 											array( 1=> 1, 2=> 5, 3=> 9), array( 1=> 3, 2=> 5, 3=> 7));
+											
 		
-		$_SESSION['session_id'] = $sesId;
-	
 	}
 	
 	public function playerSelection( $slot ) {
+			
+		
 		$_SESSION['player'][$slot] = $slot;
 		unset($_SESSION['free'][$slot]);
 		$player = 1;
@@ -36,14 +40,15 @@ class TicTacToe {
 		$playerSlots = $_SESSION['player'];
 		$aiSlots     = $_SESSION['ai'];
 		$freeSlots   = $_SESSION['free'];
+		
 	
 		$playerCount = count($playerSlots);
 		
 		## AI first selection	
 		## if player doesn't take the center square AI takes it
 		## if player does take center square AI takes a random corner
-		if($playerCount <= 1) {
-			if($playerSelection != 1) {
+		if($playerCount == 1) {
+			if($playerSelection != 5) {
 				$_SESSION['ai'][5] = 5;
 				unset($_SESSION['free'][5]);
 				$aiSelection = 5;
