@@ -22,6 +22,7 @@ class TicTacToe {
 	public function playerSelection( $slot ) {
 		$_SESSION['player'][$slot] = $slot;
 		unset($_SESSION['free'][$slot]);
+		$player = 1;
 		$isWinner = $this->checkForWin($player);
 		if($isWinner > 0) {
 		    $_SESSION['isPlayerWinner'] = 1;
@@ -42,7 +43,6 @@ class TicTacToe {
 		## if player doesn't take the center square AI takes it
 		## if player does take center square AI takes a random corner
 		if($playerCount <= 1) {
-			echo "ai's first move ";
 			if($playerSelection != 1) {
 				$_SESSION['ai'][5] = 5;
 				unset($_SESSION['free'][5]);
@@ -69,14 +69,12 @@ class TicTacToe {
 			## Perform Defensive Move
 			$aiSelection = $this->defensiveMove();
 			if($aiSelection > 0) {
-				echo "ai performing defensive move<br/>";
 				return $aiSelection;
 			}
 			
 			## Test for winning forks 
 			$aiSelection = $this->checkForForks( $aiSlots, 2 );
 			if($aiSelection > 0) {
-				echo "offensive fork = " . $aiSelection;
 				$_SESSION['ai'][$aiSelection] = $aiSelection;
 				unset($_SESSION['free'][$aiSelection]);
 				return $aiSelection;
@@ -85,15 +83,13 @@ class TicTacToe {
 			## Test for blocking forks
 			$aiSelection = $this->checkForForks( $playerSlots, 1 );
 			if($aiSelection > 0) {
-				echo "defensive fork = " . $aiSelection;
 				$_SESSION['ai'][$aiSelection] = $aiSelection;
 				unset($_SESSION['free'][$aiSelection]);
 				return $aiSelection;
 			}
 			
-			## TODO: Pick Random Position
+			## random selection if all above rules fail
 			$aiSelection = array_rand($freeSlots,1);
-			echo "had to make a random selection<br/>";
 			$_SESSION['ai'][$aiSelection] = $aiSelection;
 			unset($_SESSION['free'][$aiSelection]);
 			return $aiSelection;
@@ -103,7 +99,6 @@ class TicTacToe {
 
 	public function checkForForks( $selections, $player ) {
 		
-		echo "checking for fork...";
 		$freeSlots   = $_SESSION['free'];	
 		$winningValues = $_SESSION['winning-combos'];
 		$slotChosen = 0;
@@ -223,6 +218,7 @@ class TicTacToe {
 	
 	public function checkForWin($player) {
 		
+		$winningValue = 0;
 		
 		if($player == 1) {
 			$offensiveSlots = $_SESSION['player'];
