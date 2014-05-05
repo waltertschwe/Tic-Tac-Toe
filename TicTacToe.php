@@ -7,12 +7,14 @@ class TicTacToe {
 		session_start();
 		$sesId = session_id(); 
 		$_SESSION['isWinner'] = 0;
+		$_SESSION['isPlayerWinner'] = 0;
 		$_SESSION['player'] = array();
 		$_SESSION['ai']	    = array();
 		$_SESSION['free']   = array(1=>1, 2=> 2, 3=> 3,4 =>4,5=>5,6=>6,7=>7,8=>8,9=>9);
 		$_SESSION['winning-combos'] = array(array( 1=> 1, 2=> 2, 3=> 3), array( 1=> 4, 2=> 5, 3=> 6), array( 1=> 7, 2=> 8, 3=> 9), 
 											array( 1=> 1, 2=> 4, 3=> 7), array( 1=> 2, 2=> 5, 3=> 8), array( 1=> 3, 2=> 6, 3=> 9),
 											array( 1=> 1, 2=> 5, 3=> 9), array( 1=> 3, 2=> 5, 3=> 7));
+		
 		$_SESSION['session_id'] = $sesId;
 	
 	}
@@ -20,7 +22,11 @@ class TicTacToe {
 	public function playerSelection( $slot ) {
 		$_SESSION['player'][$slot] = $slot;
 		unset($_SESSION['free'][$slot]);
-		
+		$isWinner = $this->checkForWin($player);
+		if($isWinner > 0) {
+			$_SESSION['isPlayerWinner'] = 1;
+		}
+	
 		return $slot;
 	}
 	
@@ -34,21 +40,28 @@ class TicTacToe {
 		
 		## AI first selection	
 		## if player doesn't take the center square AI takes it
-		## if player does take center square AI takes top left corner slot #1
+		## if player does take center square AI takes a random corner
 		if($playerCount <= 1) {
+			echo "ai's first move ";
 			if($playerSelection != 1) {
 				$_SESSION['ai'][5] = 5;
 				unset($_SESSION['free'][5]);
 				$aiSelection = 5;
 			} else {
-				$_SESSION['ai'][1] = 1;
-				unset($_SESSION['free'][1]);
-				$aiSelection = 1;
+				$corners = array(1=>1, 3=>3, 7=>7, 9=>9);
+				$slotSelected = array_rand($corners,1);
+				$_SESSION['ai'][$slotSelected] = $slotSelected;
+				unset($_SESSION['free'][$slotSelected]);
+				$aiSelection = $slotSelected;
 			}
-			return $aiSelection;
-		} else {
 			
-			$aiSelection = $this->checkForWin();
+			return $aiSelection;
+			
+		} else {
+			$player = 2; 
+			$aiSelection = 7;
+			return $aiSelection;
+			$aiSelection = $this->checkForWin($player);
 			if($aiSelection > 0) {
 				$_SESSION['isWinner'] = 1;
 				return $aiSelection;
@@ -210,19 +223,26 @@ class TicTacToe {
 		}
 	}
 	
-	public function checkForWin() {
-			
-		$playerSlots = $_SESSION['player'];
-		$aiSlots     = $_SESSION['ai'];
+	public function checkForWin($player) {
+		
+		## check if player won
+		if($player == 1) {
+			$offensiveSlots = $_SESSION['player'];
+			$defensiveSlots = $_SESSION['ai'];
+		} else {
+			$offensiveSlots = $_SESSION['player'];
+			$defensiveSlots = $_SESSION['ai'];
+		}
+		
 		$freeSlots   = $_SESSION['free'];	
 		$winningValues = $_SESSION['winning-combos'];
 		$winningPairs  = array();
 		
 		## loop through slots chosen
-		foreach ($aiSlots as $aiSlot) {
+		foreach ($offensiveSlots as $offensiveSlot) {
 			## compare against winning combinations
 			foreach ($winningValues as $key => $values) {
-			$foundKey = array_search($aiSlot, $values);
+			$foundKey = array_search($offensiveSlot, $values);
 				if(!empty($foundKey)) {
 					$winningPairs[$key][$foundKey] = $values[$foundKey];
 				}
@@ -234,13 +254,13 @@ class TicTacToe {
 			
 			if($num > 1) {
 				
-				## ai can win with one move if the slot is free
+				## can win with one move if the slot is free
 				$winningTriple = $winningValues[$key];
 				#loop through the two selections we've already made that are in the winning pair
 				foreach ($values as $value) {
-					$aiSelection = array_search($value, $winningTriple); 
-					if($aiSelection > 0) {
-						unset($winningTriple[$aiSelection]);
+					$selection = array_search($value, $winningTriple); 
+					if($selection > 0) {
+						unset($winningTriple[$selection]);
 					}
 				}
 								
