@@ -196,50 +196,7 @@ class TicTacToe {
 					}
 					error_log("FORCED PLAYER MOVE =" . $playerForcedMove);
 				}
-				
-				
-				
-				
 			}
-			/*
-			$winningTriple = $winningValues[$key];
-			$openPosition = $value;
-			
-			
-			$aiSelected = array();
-			foreach($aiSlots as $aiSlot) {
-				if(in_array($aiSlot, $winningTriple)) {
-					unset($winningTriple[$aiSlot]);
-				}
-			}
-			
-			$num = count($winningTriple);
-			
-			if($num == 1) {
-				$possibleForks = 0;
-				foreach($winningTriple as $playerMove) {
-					$playerForcedMove = $playerMove;
-					error_log("PLAYER FORCED MOVE ==" . $playerForcedMove);
-					$playerSlots[$playerForcedMove] = $playerForcedMove;
-					
-					## TODO: Should be able to canIWin method here
-					## to reduce code
-					$foundSlots = 0;
-					foreach($playerSlots as $playerSlot) {
-						foreach($winningValues as $key => $values) {
-							$foundValue = array_search($playerSlot, $values);
-							if($foundValue > 0) {
-								$foundSlots++;
-							}
-						}
-					}
-				}
-			} else {
-				continue;
-			}
-			 * 
-			 */
-			
 		}
 		
 		$slotSelected = array_rand($freeSlots, 1);
@@ -303,19 +260,13 @@ class TicTacToe {
 		$freeSlots   = $_SESSION['free'];	
 		$winningValues = $_SESSION['winning-combos'];
 		
-		
 		if($player == 1) {
 			$offensiveSlots = $_SESSION['player'];
 			$defensiveSlots = $_SESSION['ai'];
-			##error_log("offensiveSlots=" . print_r($offensiveSlots, true),0);
-			##error_log("PLAYER freeSlots=" . print_r($freeSlots, true),0);
-			
 		} else {
 			$offensiveSlots = $_SESSION['ai'];
 			$defensive      = $_SESSION['player'];
 		}
-		
-		
 		
 		## loop through slots chosen
 		foreach ($offensiveSlots as $offensiveSlot) {
@@ -334,11 +285,6 @@ class TicTacToe {
 			$num = count($values);
 			
 			if($num > 1) {
-				if($player == 1) {
-					##error_log("PLAYER HAS POTENTIAL WINNING PAIR = " . print_r($values, true), 0 );
-					##error_log("PLAYER SLOTS PICKED = " . print_r($offensiveSlots, true), 0 );
-					##error_log("PLAYER FREE SLOTS TO PICK = " . print_r($freeSlots, true), 0 );
-				}
 				## can win with one move if the slot is free
 				$winningTriple = $winningValues[$key];
 				#loop through the two selections we've already made that are in the winning pair

@@ -5,7 +5,6 @@ $(document).ready(function(){
 		var slot   = result[1];
 			$('#'+ cellId).prepend('<div class="x-image"><img class="displayed" src="img/x-image.png" /></div>');
 			 $.ajax({
-			 	 async: false,
 	   			 type: 'GET',
 	      		 dataType:'json',
 	    		 url: 'controller.php',
