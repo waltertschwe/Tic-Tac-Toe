@@ -29,7 +29,7 @@ class TicTacToe {
 		$_SESSION['player'][$slot] = $slot;
 		$playerSelections = $_SESSION['player'];
 		foreach($winningValues as $key => $values) {
-			//error_log("value = " . print_r($values,true),0);
+			##error_log("value = " . print_r($values,true),0);
 			$winningPositions = 0;
 			foreach($playerSelections as $playerSelection) {
 				if(in_array($playerSelection, $values)) { 
@@ -78,7 +78,7 @@ class TicTacToe {
 				unset($_SESSION['free'][$slotSelected]);
 				$aiSelection = $slotSelected;
 			}
-			//error_log("FREE SLOTS AFTER AI MOVE = " . print_r($_SESSION['free'], true),0);
+			##error_log("FREE SLOTS AFTER AI MOVE = " . print_r($_SESSION['free'], true),0);
 			return $aiSelection;
 			
 		} else {
@@ -87,7 +87,7 @@ class TicTacToe {
 			$aiSelection = $this->checkForWin($player);
 			if($aiSelection > 0) {
 				$_SESSION['isWinner'] = 1;
-				//error_log("FREE SLOTS AFTER AI MOVE = " . print_r($_SESSION['free'], true),0);
+				##error_log("FREE SLOTS AFTER AI MOVE = " . print_r($_SESSION['free'], true),0);
 				error_log("AI WINNER");
 				return $aiSelection;
 			}
@@ -97,7 +97,7 @@ class TicTacToe {
 			if($aiSelection > 0) {
 				$_SESSION['ai'][$aiSelection] = $aiSelection;
 				unset($_SESSION['free'][$aiSelection]);
-				//error_log("FREE SLOTS AFTER AI MOVE = " . print_r($_SESSION['free'], true),0);
+				##error_log("FREE SLOTS AFTER AI MOVE = " . print_r($_SESSION['free'], true),0);
 				error_log("PERFORMING DEFENSIVE MOVE");
 				return $aiSelection;
 			}
@@ -129,29 +129,116 @@ class TicTacToe {
 		}	
 	}
 
+	public function checkForFork() {
+		$freeSlots 	 = $_SESSION['free'];	
+		$playerSlots = $_SESSION['player'];
+		$aiSlots     = $_SESSION['ai'];
+		$winningValues = $_SESSION['winning-combos'];
+	}
+
 	public function blockPlayerFork() {
 		$freeSlots 	 = $_SESSION['free'];	
 		$playerSlots = $_SESSION['player'];
 		$aiSlots     = $_SESSION['ai'];
 		$winningValues = $_SESSION['winning-combos'];
 		
-		$playerForkPositions = array();
 		$slotSelected = 0;
 		
-		## loop through each free slot and add on to player 
-		## if greater than two winning combos do not pick that position
-		foreach ($freeSlots as $freeSlot) {
-			$aiSlots['freeSlot'] = $freeSlot;
+		$openPositions = array();
+		
+		## openPositions will return us 
+		## possible combinations where we can make a triple
+		## where the player hasn't blocked us.
+		foreach($freeSlots as $freeSlot) {
 			foreach($winningValues as $key => $values) {
-				$counter = 0;
-				foreach($playerSlots as $playerSlot) {
-					
+				$possibleSlot = 1;
+				if(in_array($freeSlot, $values)) {
+					## free slot is in winning triple
+					foreach($playerSlots as $playerSlot) {
+						if(in_array($playerSlot, $values)) {
+							## player breaks winning triple
+							$possibleSlot = 0;
+							break;
+						} 
+					}
+				} else {
+					$possibleSlot = 0;
 				}
 				
+				if($possibleSlot > 0) {
+					$openPositions[$freeSlot] = $freeSlot;
+				}
+			}	
+		}
+		
+		## loop through potential open positions
+		## and determine the players forced move for the block
+		foreach($openPositions as $openPosition) {
+		
+			error_log("OPEN POSITION = " . $openPosition);
+			$aiSlots[$openPosition] = $openPosition;
+			foreach($winningValues as $key => $values) {
+				
+				$winningTriple = $values;
+				$twoValues = array();
+				foreach($aiSlots as $aiSlot) {
+					if(in_array($aiSlot, $values)) {
+						$twoValues[$aiSlot] = $aiSlot;
+					}
+				}
+				
+				$num = count($twoValues);
+				if($num == 2) {
+					$results = array_diff($winningTriple, $twoValues);
+					## should return one result with the key/value of the player forced move
+					foreach($results as $result) {
+						$playerForcedMove = $result;
+					}
+					error_log("FORCED PLAYER MOVE =" . $playerForcedMove);
+				}
+				
+				
+				
+				
 			}
-			if($potentialForks >= 2) {
-				error_log("DO NOT SELECT POSITION = " . $freeSlot);
+			/*
+			$winningTriple = $winningValues[$key];
+			$openPosition = $value;
+			
+			
+			$aiSelected = array();
+			foreach($aiSlots as $aiSlot) {
+				if(in_array($aiSlot, $winningTriple)) {
+					unset($winningTriple[$aiSlot]);
+				}
 			}
+			
+			$num = count($winningTriple);
+			
+			if($num == 1) {
+				$possibleForks = 0;
+				foreach($winningTriple as $playerMove) {
+					$playerForcedMove = $playerMove;
+					error_log("PLAYER FORCED MOVE ==" . $playerForcedMove);
+					$playerSlots[$playerForcedMove] = $playerForcedMove;
+					
+					## TODO: Should be able to canIWin method here
+					## to reduce code
+					$foundSlots = 0;
+					foreach($playerSlots as $playerSlot) {
+						foreach($winningValues as $key => $values) {
+							$foundValue = array_search($playerSlot, $values);
+							if($foundValue > 0) {
+								$foundSlots++;
+							}
+						}
+					}
+				}
+			} else {
+				continue;
+			}
+			 * 
+			 */
 			
 		}
 		
@@ -242,15 +329,15 @@ class TicTacToe {
 			}
 		}
 		
-		///error_log("winning pairs =  " . print_r($winningPairs,true), 0);
+		##error_log("winning pairs =  " . print_r($winningPairs,true), 0);
 		foreach ($winningPairs as $key => $values) {
 			$num = count($values);
 			
 			if($num > 1) {
 				if($player == 1) {
-					//error_log("PLAYER HAS POTENTIAL WINNING PAIR = " . print_r($values, true), 0 );
-					//error_log("PLAYER SLOTS PICKED = " . print_r($offensiveSlots, true), 0 );
-					//error_log("PLAYER FREE SLOTS TO PICK = " . print_r($freeSlots, true), 0 );
+					##error_log("PLAYER HAS POTENTIAL WINNING PAIR = " . print_r($values, true), 0 );
+					##error_log("PLAYER SLOTS PICKED = " . print_r($offensiveSlots, true), 0 );
+					##error_log("PLAYER FREE SLOTS TO PICK = " . print_r($freeSlots, true), 0 );
 				}
 				## can win with one move if the slot is free
 				$winningTriple = $winningValues[$key];
@@ -267,8 +354,8 @@ class TicTacToe {
 					$winningValue = $winTripleValue;
 				}
 				
-				//error_log("free slots =  " . print_r($freeSlots,true), 0);
-				//error_log("winningValue = " . $winningValue);
+				##error_log("free slots =  " . print_r($freeSlots,true), 0);
+				##error_log("winningValue = " . $winningValue);
 				if(in_array($winningValue, $freeSlots)) {
 					return $winningValue;
 				} else {
