@@ -1,3 +1,18 @@
+<?php
+try {
+	$connection = new Mongo();
+	$db = $connection->tictactoe;
+	$collection = $db->games;
+} catch (Exception $e) {
+    error_log("Mongo connection error " .  $e->getMessage());
+}
+
+	$playerVictories = $collection->count(array('winner' => 1));
+	$aiVictories     = $collection->count(array('winner' => 2));
+	$draws           = $collection->count(array('winner' => 0));
+
+
+?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -48,7 +63,19 @@
     </table>
   </div>
  </div>
-<div class="col-xs-6 col-md-4"><!-- Overall Results Pulled from database --></div>
+<div class="col-xs-6 col-md-4"><!-- Overall Results Pulled from datasource -->
+  <ul class="list-group">
+    <li class="list-group-item active">
+        <span class="glyphicon glyphicon-tower"></span>&nbsp;Results
+    </li>
+	<li class="list-group-item">
+    	<b>Player Wins = </b>&nbsp;&nbsp;<?php echo $playerVictories; ?></li> 
+    <li class="list-group-item">
+		<b>AI Wins = </b>&nbsp;&nbsp;<?php echo $aiVictories; ?></li>
+	<li class="list-group-item">
+		<b>Draws =</b>&nbsp;&nbsp;<?php echo $draws; ?></li>
+	</ul>	
+</div>
 <script src="//code.jquery.com/jquery-1.10.2.js"></script>
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
