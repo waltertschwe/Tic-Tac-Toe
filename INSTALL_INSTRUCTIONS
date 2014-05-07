@@ -1,0 +1,18 @@
+#
+#
+#  Author: Walter T. Schweitzer
+#  Email:  wschweitzer00@gmail.com
+#
+#
+#  Requirements for Install
+#   -Linux
+#  	-PHP 5.4+
+#  	-MongoDB 2.6
+#	-Apache
+#  
+#   Run the following command in your apache web server directory
+#   git clone git@github.com:waltertschwe/Tic-Tac-Toe.git
+#
+#   Live game hosted at:
+#	http://ec2-50-19-187-57.compute-1.amazonaws.com/tic-tac-toe/index.php 
+#  
