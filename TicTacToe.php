@@ -23,11 +23,27 @@ class TicTacToe {
 	
 	public function playerSelection( $slot ) {
 			
-		
-		$_SESSION['player'][$slot] = $slot;
+		$isWinner = 0;
+		$winningValues = $_SESSION['winning-combos'];
 		unset($_SESSION['free'][$slot]);
-		$player = 1;
-		$isWinner = $this->checkForWin($player);
+		$_SESSION['player'][$slot] = $slot;
+		$playerSelections = $_SESSION['player'];
+		foreach($winningValues as $key => $values) {
+			//error_log("value = " . print_r($values,true),0);
+			$winningPositions = 0;
+			foreach($playerSelections as $playerSelection) {
+				if(in_array($playerSelection, $values)) { 
+				    $winningPositions++;
+				} 
+							
+				if($winningPositions == 3) {	
+					$isWinner = 1;
+					break 2;
+				}
+			   
+			}
+		}
+		
 		if($isWinner > 0) {
 		    $_SESSION['isPlayerWinner'] = 1;
 		}
@@ -37,9 +53,12 @@ class TicTacToe {
 	
 	public function aiSelection( $playerSelection) {
 		
+		
 		$playerSlots = $_SESSION['player'];
 		$aiSlots     = $_SESSION['ai'];
 		$freeSlots   = $_SESSION['free'];
+		$player 	 = 2; 
+		$aiSelection = 0;
 		
 	
 		$playerCount = count($playerSlots);
@@ -59,118 +78,92 @@ class TicTacToe {
 				unset($_SESSION['free'][$slotSelected]);
 				$aiSelection = $slotSelected;
 			}
-			
+			//error_log("FREE SLOTS AFTER AI MOVE = " . print_r($_SESSION['free'], true),0);
 			return $aiSelection;
 			
 		} else {
-			$player = 2; 
-		
+			
+			## Check for a winning move
 			$aiSelection = $this->checkForWin($player);
 			if($aiSelection > 0) {
-				$_SESSION['ai'][$aiSelection] = $aiSelection;
-				unset($_SESSION['free'][$aiSelection]);
 				$_SESSION['isWinner'] = 1;
+				//error_log("FREE SLOTS AFTER AI MOVE = " . print_r($_SESSION['free'], true),0);
+				error_log("AI WINNER");
 				return $aiSelection;
 			}
 			
 			## Perform Defensive Move
 			$aiSelection = $this->defensiveMove();
 			if($aiSelection > 0) {
-				return $aiSelection;
-			}
-			
-			## Test for winning forks 
-			$aiSelection = $this->checkForForks( $aiSlots, 2 );
-			if($aiSelection > 0) {
 				$_SESSION['ai'][$aiSelection] = $aiSelection;
 				unset($_SESSION['free'][$aiSelection]);
+				//error_log("FREE SLOTS AFTER AI MOVE = " . print_r($_SESSION['free'], true),0);
+				error_log("PERFORMING DEFENSIVE MOVE");
 				return $aiSelection;
 			}
 			
 			## Test for blocking forks
-			$aiSelection = $this->checkForForks( $playerSlots, 1 );
+			## perform this before winning fork
+			## if opponent can fork it sets up a move that forces them to block
+			$aiSelection = $this->blockPlayerFork();
 			if($aiSelection > 0) {
 				$_SESSION['ai'][$aiSelection] = $aiSelection;
 				unset($_SESSION['free'][$aiSelection]);
+				//error_log("FREE SLOTS AFTER AI MOVE = " . print_r($_SESSION['free'], true),0);
+				error_log("BLOCKED A PLAYER FORK");
 				return $aiSelection;
+				
 			}
 			
 			## random selection if all above rules fail
-			$aiSelection = array_rand($freeSlots,1);
-			$_SESSION['ai'][$aiSelection] = $aiSelection;
-			unset($_SESSION['free'][$aiSelection]);
-			return $aiSelection;
+			if ($aiSelection <= 0) { 
+				$aiSelection = array_rand($freeSlots,1);
+				$_SESSION['ai'][$aiSelection] = $aiSelection;
+				unset($_SESSION['free'][$aiSelection]);
+				//error_log("FREE SLOTS AFTER AI MOVE = " . print_r($_SESSION['free'], true),0);
+				error_log("MAKING A RANDOM SELECTION");
+				return $aiSelection;
+			}
+				
 			
 		}	
 	}
 
-	public function checkForForks( $selections, $player ) {
-		
-		$freeSlots   = $_SESSION['free'];	
+	public function blockPlayerFork() {
+		$freeSlots 	 = $_SESSION['free'];	
+		$playerSlots = $_SESSION['player'];
+		$aiSlots     = $_SESSION['ai'];
 		$winningValues = $_SESSION['winning-combos'];
-		$slotChosen = 0;
 		
-		##check 
+		$playerForkPositions = array();
+		$slotSelected = 0;
+		
+		## loop through each free slot and add on to player 
+		## if greater than two winning combos do not pick that position
 		foreach ($freeSlots as $freeSlot) {
-			$selections[$freeSlot] = $freeSlot;
-			$potentialTriples = $this->evaluateTriples($selections, $player);
-			
-			if($potentialTriples >= 2 ) {
-				$slotChosen = $freeSlot;
-				break;
-			}
-		}
-		
-		return $slotChosen;
-			
-	}
-	
-	public function evaluateTriples( $selections, $player) {
-			
-		$winningValues = $_SESSION['winning-combos'];
-		
-		## ai is player 2. compare against opposing player
-		if($player == 1) {
-			$playerSlots   = $_SESSION['ai'];
-		} else {
-			$playerSlots   = $_SESSION['player'];
-		}
-		
-		$potentialFork = 0;
-		foreach ($selections as $selection) {
-			foreach ($winningValues as $key => $values) {
-				$foundKey = array_search($selection, $values);
-				if(!empty($foundKey)) {
-					$winningPairs[$key][$foundKey] = $values[$foundKey];
-				}
-			}
-		}
-	
-		foreach ($winningPairs as $key => $values) {
-			$num = count($values);
-			$playerSelected = 0;
-			## we have a possible winning Triple
-			if($num == 3) {
-				foreach($values as $value) {
-					if(in_array($value, $playerSlots)) {
-						$playerSelected = 1;
-					}
+			$aiSlots['freeSlot'] = $freeSlot;
+			foreach($winningValues as $key => $values) {
+				$counter = 0;
+				foreach($playerSlots as $playerSlot) {
+					
 				}
 				
-				if($playerSelected == 0) {
-					$potentialFork++;
-				}
 			}
+			if($potentialForks >= 2) {
+				error_log("DO NOT SELECT POSITION = " . $freeSlot);
+			}
+			
 		}
 		
-		return $potentialFork;
-			
+		$slotSelected = array_rand($freeSlots, 1);
+		
+		return $slotSelected; 	
 	}
-	
-	
+
+
 	public function defensiveMove() {
 	
-		
+
 		$playerSlots = $_SESSION['player'];
 		$aiSlots     = $_SESSION['ai'];
 		$freeSlots   = $_SESSION['free'];	
@@ -213,49 +206,53 @@ class TicTacToe {
 			}
 		}
 		
-		## remove the winning combo and ai selection from the board
-		if($aiSelection > 0 ) {
-			unset($_SESSION['free'][$aiSelection]);
-			$_SESSION['ai'][$aiSelection] = $aiSelection;
-			return $aiSelection;
-		} else {
-			return $aiSelection;
-		}
+		return $aiSelection;
 	}
 	
 	public function checkForWin($player) {
 		
 		$winningValue = 0;
+		$winningPairs  = array();
+		$freeSlots   = $_SESSION['free'];	
+		$winningValues = $_SESSION['winning-combos'];
+		
 		
 		if($player == 1) {
 			$offensiveSlots = $_SESSION['player'];
 			$defensiveSlots = $_SESSION['ai'];
+			##error_log("offensiveSlots=" . print_r($offensiveSlots, true),0);
+			##error_log("PLAYER freeSlots=" . print_r($freeSlots, true),0);
+			
 		} else {
 			$offensiveSlots = $_SESSION['ai'];
 			$defensive      = $_SESSION['player'];
 		}
 		
-		$freeSlots   = $_SESSION['free'];	
-		$winningValues = $_SESSION['winning-combos'];
-		$winningPairs  = array();
+		
 		
 		## loop through slots chosen
 		foreach ($offensiveSlots as $offensiveSlot) {
 			## compare against winning combinations
 			foreach ($winningValues as $key => $values) {
 			$foundKey = array_search($offensiveSlot, $values);
+				## if selection is in winning pair add it to potential winning pairs
 				if(!empty($foundKey)) {
 					$winningPairs[$key][$foundKey] = $values[$foundKey];
 				}
 			}
 		}
 		
+		///error_log("winning pairs =  " . print_r($winningPairs,true), 0);
 		foreach ($winningPairs as $key => $values) {
 			$num = count($values);
 			
 			if($num > 1) {
-				
-				## ai can win with one move if the slot is free
+				if($player == 1) {
+					//error_log("PLAYER HAS POTENTIAL WINNING PAIR = " . print_r($values, true), 0 );
+					//error_log("PLAYER SLOTS PICKED = " . print_r($offensiveSlots, true), 0 );
+					//error_log("PLAYER FREE SLOTS TO PICK = " . print_r($freeSlots, true), 0 );
+				}
+				## can win with one move if the slot is free
 				$winningTriple = $winningValues[$key];
 				#loop through the two selections we've already made that are in the winning pair
 				foreach ($values as $value) {
@@ -270,8 +267,9 @@ class TicTacToe {
 					$winningValue = $winTripleValue;
 				}
 				
+				//error_log("free slots =  " . print_r($freeSlots,true), 0);
+				//error_log("winningValue = " . $winningValue);
 				if(in_array($winningValue, $freeSlots)) {
-					## ai wins
 					return $winningValue;
 				} else {
 					continue;
@@ -279,6 +277,7 @@ class TicTacToe {
 				
 			}			
 		}
+		
 	}
 
 }
