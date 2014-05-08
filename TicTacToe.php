@@ -141,13 +141,6 @@ class TicTacToe {
 		}	
 	}
 
-	public function checkForFork() {
-		$freeSlots 	 = $_SESSION['free'];	
-		$playerSlots = $_SESSION['player'];
-		$aiSlots     = $_SESSION['ai'];
-		$winningValues = $_SESSION['winning-combos'];
-	}
-
 	public function blockPlayerFork() {
 		$freeSlots 	 = $_SESSION['free'];	
 		$playerSlots = $_SESSION['player'];
