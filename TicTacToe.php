@@ -114,18 +114,30 @@ class TicTacToe {
 				return $aiSelection;
 				
 			}
-			
-			## random selection if all above rules fail
-			if ($aiSelection <= 0) { 
-				$aiSelection = array_rand($freeSlots,1);
-				$_SESSION['ai'][$aiSelection] = $aiSelection;
-				unset($_SESSION['free'][$aiSelection]);
-				//error_log("FREE SLOTS AFTER AI MOVE = " . print_r($_SESSION['free'], true),0);
-				error_log("MAKING A RANDOM SELECTION");
-				return $aiSelection;
+
+			## play a corner
+			$corners = array(1=>1, 3=>3, 7=>7, 9=>9);
+			foreach($freeSlots as $freeSlot) {
+				if(in_array($freeSlot, $corners)) {
+					$aiSelection = $freeSlot;
+					$_SESSION['ai'][$aiSelection] = $aiSelection;
+					unset($_SESSION['free'][$aiSelection]);
+					error_log("AI SELECTED A CORNER");
+					return $aiSelection;
+				}
 			}
-				
 			
+			## play a side
+			$sides = array(2=>2, 4=>4, 6=>6, 8=>8);
+			foreach($freeSlots as $freeSlot) {
+				if(in_array($freeSlot, $sides)) {
+					$aiSelection = $freeSlot;
+					$_SESSION['ai'][$aiSelection] = $aiSelection;
+					unset($_SESSION['free'][$aiSelection]);
+					error_log("AI SELECTED A SIDE");
+					return $aiSelection;
+				}
+			}
 		}	
 	}
 
@@ -171,12 +183,18 @@ class TicTacToe {
 			}	
 		}
 		
-		## loop through potential open positions
-		## and determine the players forced move for the block
+		## openPositions = a slot where AI can set itself up for a win on the next move
+		## loop through potential open positions  
+		## and determine the players forced move to block AI Victory allows them to fork
+		## if it does do not select that position
+		$aiNextMove = array();
 		foreach($openPositions as $openPosition) {
-		
+			
+			$playerForcedMove = 0;
+			$aiSelection = 0;
 			error_log("OPEN POSITION = " . $openPosition);
 			$aiSlots[$openPosition] = $openPosition;
+			unset($freeSlots[$openPosition]);
 			foreach($winningValues as $key => $values) {
 				
 				$winningTriple = $values;
@@ -193,16 +211,55 @@ class TicTacToe {
 					## should return one result with the key/value of the player forced move
 					foreach($results as $result) {
 						$playerForcedMove = $result;
+						$playerSlots[$playerForcedMove] = $playerForcedMove;
+						unset($freeSlots[$playerForcedMove]);
+						error_log("openPosition =" . $openPosition);
+						error_log("playerForcedMove =" . $playerForcedMove);
+						error_log("playerSlots =" . print_r($playerSlots, true),0);
+						## check if player can make two in a row
+						
+						foreach($winningValues as $key => $values) {
+							$potentialForks = 0;
+							$playerArray = array();
+							foreach($playerSlots as $playerSlot) {
+								if(in_array($playerSlot, $values)) { 
+								   $playerArray[$playerSlot] = $playerSlot;
+								} 
+							}
+							$num = count($playerArray);
+							
+							if($num == 2) {
+								$openSlot = array_diff($values, $playerArray);
+								foreach($openSlot as $item) {
+									//error_log("FREE SLOT =" . $item);
+									if(in_array($item, $freeSlots)) {					
+										$aiNextMove[$openPosition][$key] = $values;
+									}
+								}	
+							}
+						}
+						
+						$totalForks = count($aiNextMove[$openPosition]);
+						error_log("OPEN POSITION = " . $openPosition . "POTENTIAL FORKS = " . $totalForks );
+						## if player can make 2 forks don't use the open position
+						if ($totalForks < 2) {
+							return $openPosition;
+						} 
 					}
-					error_log("FORCED PLAYER MOVE =" . $playerForcedMove);
+					
 				}
 			}
+			## reset the board a move back;
+			$freeSlots[$openPosition] = $openPosition;
+			unset($aiSlots[$openPosition]);
+			if($playerForcedMove > 0) {
+				$freeSlots[$playerForcedMove] = $playerForcedMove;
+				unset($playerForcedMove[$playerForcedMove]);
+			}
 		}
-		
-		$slotSelected = array_rand($freeSlots, 1);
-		
-		return $slotSelected; 	
-	}
+	
+	return $slotSelected; 	
+}
 
 
 	public function defensiveMove() {

@@ -66,14 +66,18 @@ try {
 <div class="col-xs-6 col-md-4"><!-- Overall Results Pulled from datasource -->
   <ul class="list-group">
     <li class="list-group-item active">
-        <span class="glyphicon glyphicon-tower"></span>&nbsp;Results
+        <span class="glyphicon glyphicon-stats"></span>&nbsp;Results
     </li>
 	<li class="list-group-item">
     	<b>Player Wins = </b>&nbsp;&nbsp;<?php echo $playerVictories; ?></li> 
     <li class="list-group-item">
 		<b>AI Wins = </b>&nbsp;&nbsp;<?php echo $aiVictories; ?></li>
 	<li class="list-group-item">
-		<b>Draws =</b>&nbsp;&nbsp;<?php echo $draws; ?></li>
+		<b>Draws =</b>&nbsp;&nbsp;<?php echo $draws; ?>
+	</li>
+	<li class="list-group-item">
+		<div id="simulate"><a href="">Simulate 500 games</a></div>
+	</li>
 	</ul>	
 </div>
 <script src="//code.jquery.com/jquery-1.10.2.js"></script>
