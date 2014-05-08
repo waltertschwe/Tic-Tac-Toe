@@ -45,6 +45,7 @@ $aiSelection = $ticTacToe->aiSelection($slotSelected);
 $aiWinner = $_SESSION['isWinner'];
 unset($_SESSION['free'][$aiSelection]);
 if($aiWinner) {
+	$response['aiSelection'] = $aiSelection;
 	$winnerArr = array('winner' => 2, 'description' => 'computer');
 	$collection->insert($winnerArr);
 	$response['aiWinner'] = 1;
