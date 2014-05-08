@@ -5,6 +5,7 @@ $(document).ready(function(){
 		var slot   = result[1];
 			$('#'+ cellId).prepend('<div class="x-image"><img class="displayed" src="img/x-image.png" /></div>');
 			 $.ajax({
+			 	 async: false,
 	   			 type: 'GET',
 	      		 dataType:'json',
 	    		 url: 'controller.php',
@@ -29,6 +30,20 @@ $(document).ready(function(){
 	       			 }
 	   			 },
 	   			 error: function(XMLHttpRequest, textStatus, errorThrown) {
+	      		  // TODO: log errorThrown to php log or other logger
+	      		  
+	   			 }
+		    }); 
+      }); 
+      $('#simulate').one("click", function(){
+  		 $.ajax({
+		 	 async: false,
+   			 type: 'GET',
+    		 url: 'tests/simulator.php',
+    		 success: function(responseData) {
+    		 	location.reload();
+    		 },
+    		  error: function(XMLHttpRequest, textStatus, errorThrown) {
 	      		  // TODO: log errorThrown to php log or other logger
 	      		  
 	   			 }
