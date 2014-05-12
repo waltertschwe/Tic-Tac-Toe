@@ -4,7 +4,6 @@ include('TicTacToe.php');
 $response = array();
 $slotSelected = (int)$_GET['slot'];
 
-## mongo handshake 
 try {
 	$connection = new Mongo();
 	$db = $connection->tictactoe;
@@ -19,12 +18,10 @@ $ticTacToe = new TicTacToe;
 ## INIT SESSION
 session_start();  
 if(empty($_SESSION)) {
-	//error_log("INITIALIZING SESSION", 0);
 	$ticTacToe->initSession();
 } 
 
 ## player selected slot check if player won
-
 $playerSelection = $ticTacToe->playerSelection($slotSelected);
 $playerWinner = $_SESSION['isPlayerWinner'];
 if($playerWinner){

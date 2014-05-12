@@ -37,7 +37,9 @@ try {
             </div>
             <div class="panel-body">
                 1. Player goes first <br/>
-                2. Click on a box and try to make three in a row!
+                2. Click on a box and try to make three in a row!<br/><br/>
+                <b>*NOTE*</b> If player wins please contact:<br/> 
+                <a href="mailto:wschweitzer00@gmail.com">Walter Schweitzer</a> with your winning moves! <br/>
             </div>
           </div>
 		
