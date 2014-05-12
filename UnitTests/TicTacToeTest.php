@@ -2,7 +2,7 @@
 
 ##
 ## To Execute Test Suite:
-##  phpunit --bootstrap TicTacToe.php unit-tests/TicTacToeTest.php
+##  phpunit --bootstrap TicTacToe.php UnitTests/TicTacToeTest.php
 
 class TicTacToeTest extends PHPUnit_Framework_TestCase {
 	
